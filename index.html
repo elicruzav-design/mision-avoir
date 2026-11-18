@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11142f">
+  <title>Misión Avoir: aventura en francés</title>
+  <style>
+    :root{color-scheme:dark;--bg:#11142f;--panel:#202747;--ink:#f7f7ff;--muted:#c9cdef;--yellow:#ffdf72;--mint:#72eccb;--pink:#ff8bbc}
+    *{box-sizing:border-box}
+    body{margin:0;font:17px/1.5 system-ui,-apple-system,sans-serif;background:radial-gradient(circle at 80% 0%,#3b246a 0,transparent 35%),radial-gradient(circle at 0% 50%,#143f57 0,transparent 35%),var(--bg);color:var(--ink);min-height:100vh}
+    .wrap{max-width:980px;margin:auto;padding:22px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .brand{font-weight:900;letter-spacing:.07em;color:var(--yellow)}
+    .stats{display:flex;gap:10px;flex-wrap:wrap}
+    .badge{background:#ffffff16;border:1px solid #ffffff25;border-radius:99px;padding:7px 13px;font-weight:700;font-size:.88rem}
+    .bar{background:#ffffff20;height:10px;border-radius:10px;margin:18px 0;overflow:hidden}
+    .bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--yellow));transition:width .25s}
+    main{background:#202747e8;border:1px solid #ffffff24;border-radius:24px;padding:clamp(20px,4vw,40px);box-shadow:0 20px 70px #0005}
+    h1,h2,h3,p{margin-top:0} h1{font-size:clamp(2rem,6vw,4rem);line-height:1.04;margin-bottom:16px} h2{font-size:clamp(1.7rem,4vw,2.7rem);line-height:1.12;margin-bottom:12px}
+    .tag{color:var(--mint);font-size:.85rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+    .lead{font-size:1.12rem;color:var(--muted);max-width:710px}
+    .hero{font-size:clamp(3rem,10vw,6rem);line-height:1.1;margin:15px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:20px 0}
+    .tile,.box{background:#ffffff0b;border:1px solid #ffffff20;border-radius:15px;padding:14px}
+    .tile strong{display:block;color:var(--yellow);font-size:1.13rem}
+    .tile small{color:var(--muted)}
+    button{font:inherit;cursor:pointer;border:0;border-radius:12px;transition:transform .12s,background .12s}
+    button:hover:not(:disabled){transform:translateY(-2px)}
+    button:focus-visible{outline:3px solid white;outline-offset:3px}
+    .primary{background:var(--yellow);color:#242039;font-weight:900;padding:13px 22px}
+    .secondary{background:#ffffff17;color:white;font-weight:700;padding:12px 18px;border:1px solid #ffffff30}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+    .options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:20px 0}
+    .option{background:#303a60;border:2px solid #6f7a9c;color:white;text-align:left;padding:15px;font-weight:700}
+    .option:hover:not(:disabled){background:#43517e}
+    .option.correct{background:#1b6658;border-color:var(--mint)}
+    .option.wrong{background:#733d57;border-color:var(--pink)}
+    .option:disabled{cursor:default;opacity:1}
+    .feedback{min-height:3em;font-weight:700;color:var(--mint)}
+    .feedback.error{color:#ffb1d1}
+    .question{font-size:clamp(1.3rem,3vw,1.8rem);font-weight:800;margin:20px 0}
+    .info{color:var(--muted);font-size:.95rem}
+    details{background:#ffffff0b;border:1px solid #ffffff20;border-radius:15px;padding:14px;margin-top:20px}
+    summary{cursor:pointer;font-weight:800} ol{padding-left:22px} li{margin:5px 0}
+    .foot{font-size:.85rem;color:var(--muted);text-align:center;margin:15px 0}
+    .notice{border-left:4px solid var(--mint);padding:10px 14px;background:#ffffff0a;border-radius:4px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">✦ MISIÓN AVOIR</div>
+    <div class="stats"><span class="badge" id="levelLabel">🚀 Inicio</span><span class="badge" id="score">⭐ 0 XP</span></div>
+  </header>
+  <div class="bar" role="progressbar" aria-label="Progreso de la aventura" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress"></span></div>
+  <main id="app"></main>
+  <p class="foot">Francés para 5.º y 6.º · Juega en equipos o de manera individual</p>
+</div>
+<script>
+"use strict";
+const stages = [
+  { title:"Entrenamiento espacial", time:5, type:"lesson" },
+  { title:"La energía de avoir", time:7, questions:[
+    {q:"Completa: J’___ un livre. 📗", options:["ai","as","ont"], answer:0, explanation:"J’ai significa «yo tengo»."},
+    {q:"Completa: Tu ___ un crayon. ✏️", options:["a","as","avez"], answer:1, explanation:"Con tu usamos as."},
+    {q:"Completa: Elle ___ un chat. 🐈", options:["a","ont","avons"], answer:0, explanation:"Con elle usamos a."},
+    {q:"Completa: Nous ___ une mission. 🚀", options:["avez","avons","ai"], answer:1, explanation:"Con nous usamos avons."},
+    {q:"Completa: Vous ___ des livres. 📚", options:["ont","as","avez"], answer:2, explanation:"Con vous usamos avez."},
+    {q:"Completa: Ils ___ un ballon. ⚽", options:["ont","a","avons"], answer:0, explanation:"Con ils y elles usamos ont."}
+  ]},
+  { title:"Planeta de las sensaciones", time:10, questions:[
+    {q:"Tengo hambre. 🍽️",options:["J’ai faim.","J’ai soif.","J’ai froid."],answer:0,explanation:"Faim significa hambre."},
+    {q:"Tengo sed. 💧",options:["J’ai chaud.","J’ai soif.","J’ai peur."],answer:1,explanation:"Soif significa sed."},
+    {q:"Tengo frío. ❄️",options:["J’ai froid.","J’ai chaud.","J’ai sommeil."],answer:0,explanation:"Froid significa frío."},
+    {q:"Tengo calor. ☀️",options:["J’ai faim.","J’ai chaud.","J’ai soif."],answer:1,explanation:"Chaud significa calor."},
+    {q:"Tengo sueño. 😴",options:["J’ai peur.","J’ai sommeil.","J’ai froid."],answer:1,explanation:"Sommeil significa sueño."},
+    {q:"Tengo miedo. 😨",options:["J’ai peur.","J’ai faim.","J’ai chaud."],answer:0,explanation:"Peur significa miedo."}
+  ]},
+  { title:"Rescate de personajes", time:10, questions:[
+    {q:"Léa quiere agua. ¿Qué dice? 💧",options:["J’ai faim.","J’ai soif.","J’ai peur."],answer:1,explanation:"Tiene sed: J’ai soif."},
+    {q:"Hugo necesita una cobija. ❄️",options:["Il a froid.","Il a chaud.","Il a faim."],answer:0,explanation:"Tiene frío: Il a froid."},
+    {q:"Zoé está bostezando. 😴",options:["Elle a soif.","Elle a sommeil.","Elle a peur."],answer:1,explanation:"Tiene sueño: Elle a sommeil."},
+    {q:"Los niños quieren comer. 🍽️",options:["Ils ont faim.","Ils ont soif.","Ils ont froid."],answer:0,explanation:"Tienen hambre: Ils ont faim."},
+    {q:"Hace mucho sol y tenemos calor. ☀️",options:["Nous avons chaud.","Nous avons froid.","Nous avons peur."],answer:0,explanation:"Tenemos calor: Nous avons chaud."}
+  ]},
+  { title:"Construye el hechizo", time:10, questions:[
+    {q:"Elige la frase correcta para «tú tienes sed».",options:["Tu as soif.","Tu a soif.","Tu ont soif."],answer:0,explanation:"Tu se combina con as."},
+    {q:"Elige la frase correcta para «ella tiene hambre».",options:["Elle avons faim.","Elle a faim.","Elle as faim."],answer:1,explanation:"Elle se combina con a."},
+    {q:"Elige la frase correcta para «nosotros tenemos frío».",options:["Nous avez froid.","Nous ont froid.","Nous avons froid."],answer:2,explanation:"Nous se combina con avons."},
+    {q:"Elige la frase correcta para «ustedes tienen calor».",options:["Vous avez chaud.","Vous as chaud.","Vous a chaud."],answer:0,explanation:"Vous se combina con avez."},
+    {q:"Elige la frase correcta para «ellos tienen sueño».",options:["Ils a sommeil.","Ils ont sommeil.","Ils avons sommeil."],answer:1,explanation:"Ils se combina con ont."}
+  ]},
+  { title:"Desafío final", time:8, questions:[
+    {q:"Nous ___ faim.",options:["avons","avez","ont"],answer:0,explanation:"Nous avons faim: tenemos hambre."},
+    {q:"Tu ___ soif.",options:["a","as","ai"],answer:1,explanation:"Tu as soif: tienes sed."},
+    {q:"¿Cómo se dice «tengo frío»?",options:["J’ai chaud.","J’ai froid.","J’ai sommeil."],answer:1,explanation:"J’ai froid significa «tengo frío»."},
+    {q:"¿Qué significa «Elle a sommeil»?",options:["Ella tiene sueño.","Ella tiene sed.","Ella tiene miedo."],answer:0,explanation:"Sommeil significa sueño."},
+    {q:"Elles ___ peur.",options:["a","avons","ont"],answer:2,explanation:"Elles ont peur: ellas tienen miedo."}
+  ]}
+];
+let stage = -1, question = 0, score = 0, mistakes = 0, answered = false;
+const app = document.getElementById("app");
+const scoreNode = document.getElementById("score");
+const levelLabel = document.getElementById("levelLabel");
+const bar = document.querySelector(".bar");
+function updateHeader(){
+  scoreNode.textContent = `⭐ ${score} XP`;
+  levelLabel.textContent = stage < 0 ? "🚀 Inicio" : stage >= stages.length ? "🏆 Completado" : `🎮 Nivel ${stage+1} / ${stages.length}`;
+  const percent = stage < 0 ? 0 : stage >= stages.length ? 100 : Math.round(stage / stages.length * 100);
+  document.getElementById("progress").style.width = percent + "%";
+  bar.setAttribute("aria-valuenow",percent);
+}
+function button(id, fn){document.getElementById(id).addEventListener("click",fn)}
+function start(){
+  stage=-1; question=0; score=0; mistakes=0; answered=false; updateHeader();
+  app.innerHTML = `<div class="tag">Una aventura de francés · 50 minutos</div>
+    <div class="hero" aria-hidden="true">🚀🌍✨</div>
+    <h1>Misión <span style="color:var(--yellow)">Avoir</span></h1>
+    <p class="lead">Viaja por seis niveles para aprender a decir lo que tienes y cómo te sientes en francés. ¡Gana estrellas de experiencia y ayuda a tus personajes!</p>
+    <div class="grid"><div class="tile"><strong>👥 5.º y 6.º</strong><small>Individual o en equipos</small></div><div class="tile"><strong>🎯 6 niveles</strong><small>Explicación y retos</small></div><div class="tile"><strong>⭐ 10 XP</strong><small>Por cada acierto al primer intento</small></div></div>
+    <div class="actions"><button class="primary" id="play">¡Comenzar misión! →</button></div>
+    <details><summary>📋 Guía para el docente · 50 minutos</summary>
+    <p>Proyecte el juego y forme equipos, o permita que cada alumno juegue en su dispositivo. Pida que expliquen y repitan cada respuesta antes de seleccionarla. Tras cada nivel, hagan la actividad oral indicada en pantalla. El tiempo es orientativo: el juego no avanza automáticamente.</p>
+    <ol><li>Entrenamiento: leer y repetir (5 min).</li><li>Conjugación: resolver y crear ejemplos (7 min).</li><li>Sensaciones: resolver y hacer mímica (10 min).</li><li>Personajes: resolver y explicar las pistas (10 min).</li><li>Construcción: resolver y crear frases (10 min).</li><li>Desafío final y cierre individual (8 min).</li></ol></details>`;
+  button("play",()=>{stage=0;renderStage()});
+}
+function renderStage(){
+  updateHeader();
+  const s=stages[stage];
+  if(s.type==="lesson"){
+    app.innerHTML=`<div class="tag">Nivel 1 · ${s.time} minutos</div><h2>📚 ${s.title}</h2>
+      <p class="lead"><strong>Avoir</strong> significa <strong>tener</strong>. En francés también se usa para hablar de hambre, sed y otras sensaciones.</p>
+      <div class="grid"><div class="tile"><strong>J’ai</strong><small>yo tengo</small></div><div class="tile"><strong>Tu as</strong><small>tú tienes</small></div><div class="tile"><strong>Il / Elle a</strong><small>él / ella tiene</small></div><div class="tile"><strong>Nous avons</strong><small>nosotros tenemos</small></div><div class="tile"><strong>Vous avez</strong><small>ustedes tienen</small></div><div class="tile"><strong>Ils / Elles ont</strong><small>ellos / ellas tienen</small></div></div>
+      <div class="box"><strong>Inventario de sensaciones</strong><p>🍽️ J’ai faim: tengo hambre · 💧 J’ai soif: tengo sed · ❄️ J’ai froid: tengo frío<br>☀️ J’ai chaud: tengo calor · 😴 J’ai sommeil: tengo sueño · 😨 J’ai peur: tengo miedo</p><p class="info">Se escribe <strong>j’ai</strong>, no «je ai».</p></div>
+      <p class="notice">🎤 En equipo: lean las formas en voz alta. Cada jugador elige una sensación y la representa con mímica.</p>
+      <div class="actions"><button class="primary" id="next">¡Al primer desafío! →</button></div>`;
+    button("next",()=>{stage++;question=0;renderStage()});
+    return;
+  }
+  renderQuestion();
+}
+function renderQuestion(){
+  const s=stages[stage], item=s.questions[question];
+  answered=false;
+  app.innerHTML=`<div class="tag">Nivel ${stage+1} · ${s.time} minutos · Reto ${question+1} de ${s.questions.length}</div>
+    <h2>${s.title}</h2><p class="info">Hablen en equipo antes de elegir. Si se equivocan, pueden volver a intentarlo.</p>
+    <div class="question">${item.q}</div><div class="options" id="options"></div>
+    <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+    <div class="actions"><button class="primary" id="next" hidden>${question===s.questions.length-1?"Completar nivel →":"Siguiente reto →"}</button></div>`;
+  const options=document.getElementById("options");
+  item.options.forEach((text,i)=>{
+    const choice=document.createElement("button"); choice.className="option"; choice.textContent=text;
+    choice.addEventListener("click",()=>{
+      if(answered)return;
+      const feedback=document.getElementById("feedback");
+      if(i===item.answer){
+        answered=true; choice.classList.add("correct");
+        options.querySelectorAll("button").forEach(b=>b.disabled=true);
+        const points=mistakes===0?10:0; score+=points; updateHeader();
+        feedback.className="feedback"; feedback.textContent=`¡Correcto! ${item.explanation} ${points?"+10 XP ⭐":"¡Lo lograste tras intentarlo de nuevo!"}`;
+        document.getElementById("next").hidden=false;
+      }else{
+        mistakes++; choice.classList.add("wrong"); choice.disabled=true;
+        feedback.className="feedback error"; feedback.textContent="Casi. Inténtalo otra vez; piensa en la pista.";
+      }
+    }); options.appendChild(choice);
+  });
+  button("next",()=>{
+    mistakes=0;
+    if(question+1<s.questions.length){question++;renderQuestion()}
+    else renderBreak();
+  });
+}
+function renderBreak(){
+  const tasks={
+    1:"Cada equipo inventa dos frases: una con «tu as» y otra con «nous avons». Compártanlas en voz alta.",
+    2:"Un jugador representa una sensación con mímica; su equipo dice la frase en francés. Cambien de jugador.",
+    3:"Expliquen qué pista les ayudó a identificar la sensación de cada personaje. Después representen una situación nueva.",
+    4:"Cada equipo escribe y lee dos frases nuevas con diferentes pronombres y sensaciones.",
+    5:"Cada estudiante dice o escribe una frase personal que empiece con «J’ai». Expliquen qué significa."
+  };
+  app.innerHTML=`<div class="tag">Nivel completado</div><div class="hero" aria-hidden="true">🌟🛸🌟</div><h2>¡Buen trabajo!</h2>
+    <p class="lead">Han reunido <strong>${score} XP</strong>. Los errores también ayudan a aprender.</p>
+    <p class="notice">🎤 <strong>Misión fuera de la pantalla:</strong> ${tasks[stage]}</p>
+    <p class="info">Cuando terminen la actividad, continúen. El tiempo sugerido incluye esta pausa.</p>
+    <div class="actions"><button class="primary" id="continue">${stage===stages.length-1?"Ver resultado final 🏆":"Siguiente nivel →"}</button></div>`;
+  button("continue",()=>{stage++;question=0; if(stage>=stages.length)finish();else renderStage()});
+}
+function finish(){
+  updateHeader();
+  app.innerHTML=`<div class="tag">¡Misión completada!</div><div class="hero" aria-hidden="true">🏆🌟🎉</div><h2>¡Son exploradores de francés!</h2>
+    <p class="lead">Ganaron <strong>${score} XP</strong>. Ya pueden usar <em>avoir</em> para decir lo que tienen y cómo se sienten.</p>
+    <div class="box"><strong>Recuerden:</strong><p>J’ai faim · J’ai soif · J’ai froid · J’ai chaud · J’ai sommeil · J’ai peur</p></div>
+    <p class="notice">🎤 Antes de salir, cada estudiante comparte una expresión que recuerde y su significado.</p>
+    <div class="actions"><button class="primary" id="restart">Jugar otra vez ↻</button></div>`;
+  button("restart",start);
+}
+start();
+</script>
+</body>
+</html>
